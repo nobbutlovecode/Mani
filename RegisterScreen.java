@@ -1,4 +1,4 @@
-package com.mycompany.dacs1.Config; // <--- Cực kỳ quan trọng, bắt buộc phải có
+package com.mycompany.dacs1.Config;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -39,7 +39,6 @@ public class RegisterScreen extends JFrame {
         btnRegister.setForeground(Color.WHITE);
         btnRegister.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnRegister.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         btnRegister.addActionListener(e -> {
             String fullname = txtFullname.getText();
             String user = txtUsername.getText();
@@ -54,11 +53,10 @@ public class RegisterScreen extends JFrame {
                 JOptionPane.showMessageDialog(this, "Mật khẩu xác nhận không khớp!");
                 return;
             }
-
             if (DTBConnector.registerUser(user, pass, fullname)) {
                 JOptionPane.showMessageDialog(this, "Đăng ký thành công! Hãy làm bài khảo sát nhỏ nhé.");
                 this.dispose();
-                new SurveyScreen(user).setVisible(true); 
+                new SurveyScreen(user).setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "Tên đăng nhập đã tồn tại hoặc lỗi kết nối!");
             }
@@ -92,7 +90,6 @@ public class RegisterScreen extends JFrame {
         mainPanel.add(btnRegister);
         mainPanel.add(Box.createVerticalStrut(20));
         mainPanel.add(lblLogin);
-
         add(mainPanel);
     }
 

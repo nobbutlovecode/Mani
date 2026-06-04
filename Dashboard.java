@@ -7,26 +7,40 @@ import java.util.List;
 public class Dashboard extends JFrame {
     public Dashboard() {
         setTitle("Manvi - Home");
-        setSize(400, 750); // Giữ đúng size Mobile
+        setSize(400, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setResizable(false); 
+        setResizable(false);
 
         JPanel mainPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                // Tạm thời tô màu nền hoặc load ảnh an toàn
                 g.setColor(UIConfig.BG);
                 g.fillRect(0, 0, getWidth(), getHeight());
             }
         };
         mainPanel.setLayout(new BorderLayout());
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Căn lề 4 bên
-        
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
+
         JLabel lblLogo = new JLabel("<html><b style='color:#6d141a; font-size:20px'>MANVI</b></html>");
+
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        actionPanel.setOpaque(false);
+
+        JButton btnReload = new JButton("🔄");
+        btnReload.setFocusPainted(false);
+        btnReload.setBackground(UIConfig.PRIMARY);
+        btnReload.setForeground(Color.WHITE);
+        btnReload.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnReload.addActionListener(e -> {
+            new Dashboard().setVisible(true);
+            this.dispose();
+        });
+
         JButton btnProfile = new JButton("👤 Cá nhân");
         btnProfile.setFocusPainted(false);
         btnProfile.setBackground(UIConfig.PRIMARY);
@@ -36,35 +50,33 @@ public class Dashboard extends JFrame {
             new ProfileScreen().setVisible(true);
             this.dispose();
         });
-        
-         headerPanel.add(lblLogo, BorderLayout.WEST);
-        headerPanel.add(btnProfile, BorderLayout.EAST);
+
+        actionPanel.add(btnReload);
+        actionPanel.add(btnProfile);
+
+        headerPanel.add(lblLogo, BorderLayout.WEST);
+        headerPanel.add(actionPanel, BorderLayout.EAST);
         mainPanel.add(headerPanel, BorderLayout.NORTH);
-        
-        // Panel chứa danh sách truyện
+
         JPanel contentGrid = new JPanel();
         contentGrid.setLayout(new BoxLayout(contentGrid, BoxLayout.Y_AXIS));
         contentGrid.setOpaque(false);
 
-        // ĐỔ DỮ LIỆU TỪ SQL VÀO ĐÂY
         List<Story> stories = DTBConnector.getStories();
-        if(stories.isEmpty()) {
+        if (stories.isEmpty()) {
             contentGrid.add(new JLabel("Chưa có truyện nào trong CSDL..."));
         } else {
-            for(Story s : stories) {
+            for (Story s : stories) {
                 contentGrid.add(new MangaCard(s));
-                contentGrid.add(Box.createVerticalStrut(15)); // Khoảng cách giữa các Card
+                contentGrid.add(Box.createVerticalStrut(15));
             }
         }
 
-        // Thiết lập thanh cuộn (Scroll)
         JScrollPane scroll = new JScrollPane(contentGrid);
         scroll.setOpaque(false);
         scroll.getViewport().setOpaque(false);
         scroll.setBorder(null);
-        // Tăng tốc độ cuộn chuột
         scroll.getVerticalScrollBar().setUnitIncrement(16);
-        // Ẩn thanh cuộn ngang
         scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         mainPanel.add(scroll, BorderLayout.CENTER);

@@ -1,11 +1,11 @@
-package com.mycompany.dacs1.Config; // <--- Cực kỳ quan trọng
+package com.mycompany.dacs1.Config;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class SurveyScreen extends JFrame {
-    private String username; 
+    private String username;
 
     public SurveyScreen(String username) {
         this.username = username;
@@ -28,44 +28,37 @@ public class SurveyScreen extends JFrame {
         lblSub.setForeground(Color.GRAY);
         lblSub.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        String[] categories = {"Action (Hành động)", "Romance (Tình cảm)", "Fantasy (Kỳ ảo)", "Comedy (Hài hước)", "Slice of Life"};
-        JComboBox<String> cbCategory = createComboBox(categories);
-
-        String[] readTimes = {"Sáng sớm", "Giờ nghỉ trưa", "Buổi tối", "Đêm khuya"};
-        JComboBox<String> cbReadTime = createComboBox(readTimes);
-
-        String[] storyLengths = {"Truyện ngắn (Dưới 50 chap)", "Trung bình (50 - 200 chap)", "Dài (Trên 200 chap)"};
-        JComboBox<String> cbStoryLength = createComboBox(storyLengths);
-
-        String[] readingStyles = {"Đọc dồn 1 lần (Binge-read)", "Đọc mỗi ngày 1 ít", "Chỉ đọc khi rảnh rỗi"};
-        JComboBox<String> cbReadingStyle = createComboBox(readingStyles);
-
-        String[] goals = {"Giải trí, xả stress", "Khám phá cốt truyện sâu sắc", "Giết thời gian", "Học hỏi, tìm cảm hứng"};
-        JComboBox<String> cbGoal = createComboBox(goals);
+        JComboBox<String> cbCategory = createComboBox(new String[]{
+            "Action (Hành động)", "Romance (Tình cảm)", "Fantasy (Kỳ ảo)", "Comedy (Hài hước)", "Slice of Life"});
+        JComboBox<String> cbReadTime = createComboBox(new String[]{
+            "Sáng sớm", "Giờ nghỉ trưa", "Buổi tối", "Đêm khuya"});
+        JComboBox<String> cbStoryLength = createComboBox(new String[]{
+            "Truyện ngắn (Dưới 50 chap)", "Trung bình (50 - 200 chap)", "Dài (Trên 200 chap)"});
+        JComboBox<String> cbReadingStyle = createComboBox(new String[]{
+            "Đọc dồn 1 lần (Binge-read)", "Đọc mỗi ngày 1 ít", "Chỉ đọc khi rảnh rỗi"});
+        JComboBox<String> cbGoal = createComboBox(new String[]{
+            "Giải trí, xả stress", "Khám phá cốt truyện sâu sắc", "Giết thời gian", "Học hỏi, tìm cảm hứng"});
 
         JButton btnSubmit = new JButton("Bắt đầu đọc truyện");
         btnSubmit.setFont(new Font("SansSerif", Font.BOLD, 16));
         btnSubmit.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
-        btnSubmit.setBackground(new Color(46, 204, 113)); 
+        btnSubmit.setBackground(new Color(46, 204, 113));
         btnSubmit.setForeground(Color.WHITE);
         btnSubmit.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnSubmit.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         btnSubmit.addActionListener(e -> {
-            String favCategory = (String) cbCategory.getSelectedItem();
-            String readTime = (String) cbReadTime.getSelectedItem();
-            String storyLength = (String) cbStoryLength.getSelectedItem();
-            String readingStyle = (String) cbReadingStyle.getSelectedItem();
-            String goal = (String) cbGoal.getSelectedItem();
+            boolean success = DTBConnector.saveUserSurvey(username,
+                (String) cbCategory.getSelectedItem(),
+                (String) cbReadTime.getSelectedItem(),
+                (String) cbStoryLength.getSelectedItem(),
+                (String) cbReadingStyle.getSelectedItem(),
+                (String) cbGoal.getSelectedItem());
 
-            boolean success = DTBConnector.saveUserSurvey(username, favCategory, readTime, storyLength, readingStyle, goal);
-            
-            if(success) {
-                // LƯU SESSION USER VÀ MỞ DASHBOARD BÌNH THƯỜNG (KHÔNG LỖI XUNG ĐỘT NỮA)
-                DTBConnector.currentUser = username; 
+            if (success) {
+                DTBConnector.currentUser = username;
                 JOptionPane.showMessageDialog(this, "Thiết lập thành công! Manvi đã phân tích xong sở thích của bạn.");
                 this.dispose();
-                new Dashboard().setVisible(true); 
+                new Dashboard().setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "Có lỗi xảy ra khi lưu khảo sát.");
             }
@@ -75,30 +68,23 @@ public class SurveyScreen extends JFrame {
         mainPanel.add(Box.createVerticalStrut(10));
         mainPanel.add(lblSub);
         mainPanel.add(Box.createVerticalStrut(30));
-
         mainPanel.add(createLabel("1. Thể loại bạn yêu thích nhất?"));
         mainPanel.add(cbCategory);
         mainPanel.add(Box.createVerticalStrut(15));
-
         mainPanel.add(createLabel("2. Thường đọc truyện vào lúc nào?"));
         mainPanel.add(cbReadTime);
         mainPanel.add(Box.createVerticalStrut(15));
-
         mainPanel.add(createLabel("3. Độ dài truyện mong muốn?"));
         mainPanel.add(cbStoryLength);
         mainPanel.add(Box.createVerticalStrut(15));
-
         mainPanel.add(createLabel("4. Phong cách đọc của bạn?"));
         mainPanel.add(cbReadingStyle);
         mainPanel.add(Box.createVerticalStrut(15));
-
         mainPanel.add(createLabel("5. Mục tiêu khi đọc truyện?"));
         mainPanel.add(cbGoal);
         mainPanel.add(Box.createVerticalStrut(30));
-
         mainPanel.add(btnSubmit);
-        mainPanel.add(Box.createVerticalGlue()); 
-
+        mainPanel.add(Box.createVerticalGlue());
         add(mainPanel);
     }
 

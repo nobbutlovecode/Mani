@@ -14,22 +14,19 @@ public class ReadScreen extends JFrame {
         setResizable(false);
         getContentPane().setBackground(Color.BLACK);
         setLayout(new BorderLayout());
-        // --- TÍNH NĂNG MỚI: GHI NHẬN LỊCH SỬ ĐỌC ---
+
         if (DTBConnector.currentUser != null) {
-            // Truy vấn lấy tên truyện dựa vào storyId để lưu cho đẹp
-            String storyTitle = "Truyện"; 
-            for(Story s : DTBConnector.getStories()) {
-                if(s.id.equals(chapter.storyId)) {
-                    storyTitle = s.title;
-                    break;
-                }
-            }
+            String storyTitle = DTBConnector.getStories().stream()
+                .filter(s -> s.id.equals(chapter.storyId))
+                .map(s -> s.title)
+                .findFirst()
+                .orElse("Truyện");
             DTBConnector.saveReadingHistory(DTBConnector.currentUser, storyTitle, chapter.chapterName);
         }
 
-        // 1. THANH ĐIỀU HƯỚNG
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(Color.DARK_GRAY);
+
         JButton btnBack = new JButton("⬅ Thoát");
         btnBack.setFocusPainted(false);
         btnBack.setBackground(Color.RED);
@@ -38,30 +35,35 @@ public class ReadScreen extends JFrame {
             new Dashboard().setVisible(true);
             this.dispose();
         });
-        
-        JLabel lblTitle = new JLabel("  " + chapter.chapterName);
-        lblTitle.setForeground(Color.WHITE);
-        topPanel.add(btnBack);
-        topPanel.add(lblTitle);
 
-        // 2. KHU VỰC HIỂN THỊ ẢNH (CUỘN DỌC)
+        JButton btnReload = new JButton("🔄");
+        btnReload.setFocusPainted(false);
+        btnReload.setBackground(Color.DARK_GRAY);
+        btnReload.setForeground(Color.WHITE);
+        btnReload.addActionListener(e -> {
+            new ReadScreen(chapter).setVisible(true);
+            this.dispose();
+        });
+
+        JLabel lblTitle = new JLabel("  " + chapter.chapterName, SwingConstants.CENTER);
+        lblTitle.setForeground(Color.WHITE);
+
+        topPanel.add(btnBack, BorderLayout.WEST);
+        topPanel.add(lblTitle, BorderLayout.CENTER);
+        topPanel.add(btnReload, BorderLayout.EAST);
+
         JPanel pagePanel = new JPanel();
         pagePanel.setLayout(new BoxLayout(pagePanel, BoxLayout.Y_AXIS));
         pagePanel.setBackground(Color.BLACK);
 
-        // --- ĐỌC ẢNH TỪ THƯ MỤC LOCAL ---
-        String folderPath = "assets/pages/" + chapter.folderPath;
-        File folder = new File(folderPath);
-
+        File folder = new File("assets/pages/" + chapter.folderPath);
         if (folder.exists() && folder.isDirectory()) {
-            // Lấy tất cả file ảnh (.jpg, .png)
-            File[] files = folder.listFiles((dir, name) -> 
+            File[] files = folder.listFiles((dir, name) ->
                 name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"));
 
             if (files != null && files.length > 0) {
-                // THUẬT TOÁN QUAN TRỌNG: Sắp xếp file theo số (Tránh tình trạng 1.jpg, 10.jpg, 2.jpg)
                 Arrays.sort(files, (f1, f2) -> {
-                    String n1 = f1.getName().replaceAll("[^0-9]", ""); // Lấy ra phần số
+                    String n1 = f1.getName().replaceAll("[^0-9]", "");
                     String n2 = f2.getName().replaceAll("[^0-9]", "");
                     try {
                         return Integer.compare(Integer.parseInt(n1), Integer.parseInt(n2));
@@ -70,17 +72,12 @@ public class ReadScreen extends JFrame {
                     }
                 });
 
-                // Render từng ảnh lên màn hình
                 for (File file : files) {
                     ImageIcon originIcon = new ImageIcon(file.getAbsolutePath());
-                    
-                    // Tính toán Scale ảnh sao cho vừa chiều rộng 380px, giữ nguyên tỷ lệ chiều cao
                     int imgWidth = 380;
                     int imgHeight = (originIcon.getIconHeight() * imgWidth) / originIcon.getIconWidth();
-                    
-                    Image scaledImg = originIcon.getImage().getScaledInstance(imgWidth, imgHeight, Image.SCALE_SMOOTH);
-                    
-                    JLabel page = new JLabel(new ImageIcon(scaledImg));
+                    JLabel page = new JLabel(new ImageIcon(
+                        originIcon.getImage().getScaledInstance(imgWidth, imgHeight, Image.SCALE_SMOOTH)));
                     page.setAlignmentX(Component.CENTER_ALIGNMENT);
                     pagePanel.add(page);
                 }
@@ -88,19 +85,18 @@ public class ReadScreen extends JFrame {
                 pagePanel.add(createErrorLabel("Thư mục truyện rỗng!"));
             }
         } else {
-            pagePanel.add(createErrorLabel("Không tìm thấy đường dẫn: " + folderPath));
+            pagePanel.add(createErrorLabel("Không tìm thấy đường dẫn: assets/pages/" + chapter.folderPath));
         }
 
         JScrollPane scroll = new JScrollPane(pagePanel);
         scroll.setBorder(null);
-        scroll.getVerticalScrollBar().setUnitIncrement(30); // Tốc độ lướt truyện mượt mà
+        scroll.getVerticalScrollBar().setUnitIncrement(30);
         scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         add(topPanel, BorderLayout.NORTH);
         add(scroll, BorderLayout.CENTER);
     }
 
-    // Hàm tạo Label thông báo lỗi nếu không có ảnh
     private JLabel createErrorLabel(String message) {
         JLabel lbl = new JLabel(message, SwingConstants.CENTER);
         lbl.setForeground(Color.RED);

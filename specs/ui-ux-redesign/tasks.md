@@ -1,0 +1,21 @@
+# Implementation Tasks: Manvi UI/UX Overhaul (`specs/ui-ux-redesign/tasks.md`)
+
+- [x] **Phase 1: Clarification & Approval**
+  - [x] Task 1.1: Present Red Palette options (Crimson Wine vs Imperial Ruby vs Vivid Scarlet) and live preview simulator to user for approval. -> User confirmed: Crimson Wine (#8B1824).
+- [x] **Phase 2: Core Design Tokens & Global Config**
+  - [x] Task 2.1: Update `UIConfig.java` with refined tokens, colors, fonts, and border radii.
+  - [x] Task 2.2: Refine `main.java` FlatLaf arc properties.
+- [x] **Phase 3: Auth & Onboarding Flow**
+  - [x] Task 3.1: Redesign `LoginScreen.java` with modern card overlay on `assets/background_dacs.png`.
+  - [x] Task 3.2: Redesign `RegisterScreen.java` to align with Red theme.
+  - [x] Task 3.3: Redesign `SurveyScreen.java` with structured questions and Red CTA.
+- [x] **Phase 4: Main Browsing Experience**
+  - [x] Task 4.1: Redesign `Dashboard.java` with modern header and filter tabs.
+  - [x] Task 4.2: Redesign `MangaCard.java` with polished badge, layout, and shadow.
+  - [x] Task 4.3: Redesign `StoryDetail.java` with hero cover, clean metadata, and chapter items.
+- [x] **Phase 5: Reading & Profile Systems**
+  - [x] Task 5.1: ReadScreen.java with refined controls and navigation.
+  - [x] Task 5.2: Redesign `ProfileScreen.java` with wallet card, recharge options, and history.
+- [x] **Phase 6: Live Preview & Verification**
+  - [x] Task 6.1: Update HTML live preview simulator with finalized assets and interactions.
+  - [x] Task 6.2: Run final consistency check across all Java files to ensure 0 business logic changes.

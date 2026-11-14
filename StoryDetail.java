@@ -1,6 +1,7 @@
 package com.mycompany.dacs1.Config;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.File;
 import java.util.List;
@@ -18,10 +19,27 @@ public class StoryDetail extends JFrame {
         getContentPane().setBackground(UIConfig.BG);
         setLayout(new BorderLayout());
 
-        JPanel topPanel = new JPanel(new BorderLayout());
+        // Floating Rounded Header Container
+        JPanel topWrapper = new JPanel(new BorderLayout());
+        topWrapper.setOpaque(false);
+        topWrapper.setBorder(new EmptyBorder(10, 14, 0, 14));
+
+        JPanel topPanel = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(UIConfig.CARD_BG);
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, UIConfig.ARC_PANEL, UIConfig.ARC_PANEL);
+                g2.setColor(UIConfig.CARD_BORDER);
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, UIConfig.ARC_PANEL, UIConfig.ARC_PANEL);
+            }
+        };
         topPanel.setOpaque(false);
-        
+        topPanel.setBorder(new EmptyBorder(8, 12, 8, 12));
+
         JButton btnBack = new JButton("⬅ Quay lại");
+        btnBack.setFont(UIConfig.FONT_SMALL);
         btnBack.setFocusPainted(false);
         btnBack.setBackground(UIConfig.PRIMARY);
         btnBack.setForeground(Color.WHITE);
@@ -31,10 +49,12 @@ public class StoryDetail extends JFrame {
             this.dispose();
         });
 
-        JButton btnReload = new JButton("🔄");
+        JButton btnReload = new JButton("Làm mới");
+        btnReload.setFont(UIConfig.FONT_SMALL);
         btnReload.setFocusPainted(false);
-        btnReload.setBackground(UIConfig.PRIMARY);
-        btnReload.setForeground(Color.WHITE);
+        btnReload.setBackground(UIConfig.PRIMARY_LIGHT);
+        btnReload.setForeground(UIConfig.PRIMARY);
+        btnReload.setBorder(BorderFactory.createLineBorder(UIConfig.PRIMARY_BORDER, 1));
         btnReload.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnReload.addActionListener(e -> {
             new StoryDetail(story).setVisible(true);
@@ -43,71 +63,120 @@ public class StoryDetail extends JFrame {
 
         topPanel.add(btnBack, BorderLayout.WEST);
         topPanel.add(btnReload, BorderLayout.EAST);
+        topWrapper.add(topPanel, BorderLayout.CENTER);
 
+        // Content Area
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         contentPanel.setOpaque(false);
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
+        contentPanel.setBorder(new EmptyBorder(14, 14, 20, 14));
+
+        // Cover Thumbnail with rounded container
+        JPanel coverCard = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(241, 245, 249));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, UIConfig.ARC_CARD, UIConfig.ARC_CARD);
+                g2.setColor(UIConfig.CARD_BORDER);
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, UIConfig.ARC_CARD, UIConfig.ARC_CARD);
+            }
+        };
+        coverCard.setLayout(new BorderLayout());
+        coverCard.setOpaque(false);
+        coverCard.setPreferredSize(new Dimension(180, 250));
+        coverCard.setMaximumSize(new Dimension(180, 250));
+        coverCard.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel imgLabel = new JLabel("", SwingConstants.CENTER);
-        imgLabel.setPreferredSize(new Dimension(200, 280));
-        imgLabel.setMaximumSize(new Dimension(200, 280));
-        imgLabel.setOpaque(true);
-        imgLabel.setBackground(UIConfig.SHADOW);
-        imgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         File coverFile = new File("assets/covers/" + story.imageName);
         if (coverFile.exists()) {
-            Image img = new ImageIcon("assets/covers/" + story.imageName)
-                .getImage().getScaledInstance(200, 280, Image.SCALE_SMOOTH);
+            Image img = new ImageIcon(coverFile.getAbsolutePath())
+                .getImage().getScaledInstance(180, 250, Image.SCALE_SMOOTH);
             imgLabel.setIcon(new ImageIcon(img));
         } else {
-            imgLabel.setText("NO IMG");
-            imgLabel.setForeground(Color.GRAY);
+            imgLabel.setText("<html><div style='text-align:center;'><b>ẢNH BÌA</b><br><small>MANVI</small></div></html>");
+            imgLabel.setFont(UIConfig.FONT_BADGE);
+            imgLabel.setForeground(UIConfig.TEXT_MUTED);
         }
+        coverCard.add(imgLabel, BorderLayout.CENTER);
 
         JLabel titleLabel = new JLabel(
             "<html><div style='text-align: center;'>" + story.title + "</div></html>", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        titleLabel.setForeground(UIConfig.PRIMARY);
+        titleLabel.setFont(UIConfig.FONT_HEADER);
+        titleLabel.setForeground(UIConfig.TEXT_MAIN);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel authorLabel = new JLabel("Tác giả: " + story.author);
-        authorLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        JLabel authorLabel = new JLabel("Tác giả: " + story.author, SwingConstants.CENTER);
+        authorLabel.setFont(UIConfig.FONT_SMALL);
+        authorLabel.setForeground(UIConfig.TEXT_MUTED);
         authorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel categoryLabel = new JLabel("Thể loại: " + story.category);
-        categoryLabel.setFont(new Font("Segoe UI", Font.ITALIC, 14));
-        categoryLabel.setForeground(Color.GRAY);
-        categoryLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JPanel tagPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 4, 0));
+        tagPanel.setOpaque(false);
+        JLabel categoryTag = new JLabel(" " + story.category + " ");
+        categoryTag.setFont(UIConfig.FONT_BADGE);
+        categoryTag.setOpaque(true);
+        categoryTag.setBackground(UIConfig.PRIMARY_LIGHT);
+        categoryTag.setForeground(UIConfig.PRIMARY);
+        categoryTag.setBorder(BorderFactory.createLineBorder(UIConfig.PRIMARY_BORDER, 1));
+        tagPanel.add(categoryTag);
+
+        // Synopsis Card (Fully Rounded)
+        JPanel synopsisCard = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(UIConfig.CARD_BG);
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, UIConfig.ARC_CARD, UIConfig.ARC_CARD);
+                g2.setColor(UIConfig.CARD_BORDER);
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, UIConfig.ARC_CARD, UIConfig.ARC_CARD);
+            }
+        };
+        synopsisCard.setOpaque(false);
+        synopsisCard.setBorder(new EmptyBorder(12, 14, 12, 14));
+        synopsisCard.setMaximumSize(new Dimension(352, 160));
 
         JTextArea descArea = new JTextArea(story.description);
-        descArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        descArea.setFont(UIConfig.FONT_SMALL);
+        descArea.setForeground(UIConfig.TEXT_MAIN);
         descArea.setLineWrap(true);
         descArea.setWrapStyleWord(true);
         descArea.setOpaque(false);
         descArea.setEditable(false);
-        descArea.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
+        synopsisCard.add(descArea, BorderLayout.CENTER);
 
-        contentPanel.add(imgLabel);
-        contentPanel.add(Box.createVerticalStrut(15));
+        contentPanel.add(coverCard);
+        contentPanel.add(Box.createVerticalStrut(14));
         contentPanel.add(titleLabel);
-        contentPanel.add(Box.createVerticalStrut(5));
+        contentPanel.add(Box.createVerticalStrut(4));
         contentPanel.add(authorLabel);
-        contentPanel.add(categoryLabel);
-        contentPanel.add(descArea);
-        contentPanel.add(Box.createVerticalStrut(10));
+        contentPanel.add(Box.createVerticalStrut(6));
+        contentPanel.add(tagPanel);
+        contentPanel.add(Box.createVerticalStrut(14));
+        contentPanel.add(synopsisCard);
+        contentPanel.add(Box.createVerticalStrut(16));
 
-        JLabel chapTitle = new JLabel("Danh sách Chương");
-        chapTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        // Chapter Header
+        JPanel chapHeader = new JPanel(new BorderLayout());
+        chapHeader.setOpaque(false);
+        chapHeader.setMaximumSize(new Dimension(352, 28));
+
+        JLabel chapTitle = new JLabel("DANH SÁCH CHƯƠNG");
+        chapTitle.setFont(UIConfig.FONT_SUBTITLE);
         chapTitle.setForeground(UIConfig.PRIMARY);
-        chapTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-        contentPanel.add(chapTitle);
-        contentPanel.add(Box.createVerticalStrut(10));
+        chapHeader.add(chapTitle, BorderLayout.WEST);
+
+        contentPanel.add(chapHeader);
+        contentPanel.add(Box.createVerticalStrut(8));
 
         List<Chapter> chapters = DTBConnector.getChaptersByStoryId(story.id);
         if (chapters.isEmpty()) {
             JLabel emptyChap = new JLabel("Truyện đang cập nhật, chưa có chương mới.");
+            emptyChap.setFont(UIConfig.FONT_SMALL);
+            emptyChap.setForeground(UIConfig.TEXT_MUTED);
             emptyChap.setAlignmentX(Component.CENTER_ALIGNMENT);
             contentPanel.add(emptyChap);
         } else {
@@ -115,9 +184,13 @@ public class StoryDetail extends JFrame {
                 boolean isUnlocked = DTBConnector.isChapterUnlocked(DTBConnector.currentUser, chap.chapterId)
                     || chap.chapterName.contains("Chương 1") || chap.chapterName.contains("Chap 1");
 
-                JButton btnChap = new JButton(chap.chapterName + (isUnlocked ? " (Đã mở khóa)" : " (🔒 2 Coin)"));
-                btnChap.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-                btnChap.setMaximumSize(new Dimension(300, 40));
+                String statusText = isUnlocked ? "Đã mở" : "🔒 2 Xu";
+                JButton btnChap = new JButton("<html><table width='270'><tr><td align='left'><b>" + chap.chapterName + "</b></td><td align='right' style='color:" + (isUnlocked ? "#166534" : "#D97706") + ";'>" + statusText + "</td></tr></table></html>");
+                btnChap.setFont(UIConfig.FONT_BODY);
+                btnChap.setMaximumSize(new Dimension(352, 42));
+                btnChap.setBackground(UIConfig.CARD_BG);
+                btnChap.setForeground(UIConfig.TEXT_MAIN);
+                btnChap.setBorder(BorderFactory.createLineBorder(UIConfig.CARD_BORDER, 1));
                 btnChap.setAlignmentX(Component.CENTER_ALIGNMENT);
                 btnChap.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
@@ -146,7 +219,7 @@ public class StoryDetail extends JFrame {
                 });
 
                 contentPanel.add(btnChap);
-                contentPanel.add(Box.createVerticalStrut(5));
+                contentPanel.add(Box.createVerticalStrut(6));
             }
         }
 
@@ -157,7 +230,7 @@ public class StoryDetail extends JFrame {
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        add(topPanel, BorderLayout.NORTH);
+        add(topWrapper, BorderLayout.NORTH);
         add(scroll, BorderLayout.CENTER);
     }
 }
